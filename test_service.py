@@ -1,7 +1,11 @@
 from fastapi.testclient import TestClient
+
 import pytest
+
 from recommendations_service import app
+
 import requests
+
 import logging
 
 client = TestClient(app)

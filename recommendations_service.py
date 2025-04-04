@@ -1,7 +1,11 @@
 import logging
+
 import requests
+
 from contextlib import asynccontextmanager
+
 import pandas as pd
+
 from fastapi import FastAPI, HTTPException
 
 logger = logging.getLogger("uvicorn.error")
@@ -23,8 +27,6 @@ class Recommendations:
         self._recs[rec_type] = pd.read_parquet(path, **kwargs)
         if rec_type == "personal":
             self._recs[rec_type] = self._recs[rec_type].set_index("user_id")
-        #logger.info(f"Loaded. Data structure:\n{self._recs[rec_type].head()}")
-        #logger.info(f"Shape. Data Size:\n{self._recs[rec_type].count()}")
         logger.info(f"Loaded")
 
     def get(self, user_id: int, k: int = 100):
@@ -37,11 +39,8 @@ class Recommendations:
             recs = self._recs["default"]
             recs = recs["track_id"].to_list()[:k]
             self._stats["request_default_count"] += 1
-            
-        except:
-            logger.error("No recommendations found")
-            recs = []
-
+        except Exception: 
+            logger.error("Неизвестная ошибка - No recommendations found") 
         return recs
 
     def stats(self):
@@ -109,10 +108,6 @@ async def recommendations(user_id: int, k: int = 100):
     recs_offline = await recommendations_offline(user_id, k)
     recs_online = await recommendations_online(user_id, k)
 
-    # Логирование для отладки
-    #logger.info(f"Offline recommendations: {recs_offline}")
-    #logger.info(f"Online recommendations: {recs_online}")
-    
     # Проверка формата данных
     if not isinstance(recs_offline.get("recs", []), list):
         logger.error(f"recs_offline['recs'] is not a list: {recs_offline['recs']}")

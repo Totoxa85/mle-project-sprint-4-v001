@@ -1,6 +1,9 @@
 import logging
+
 from contextlib import asynccontextmanager
+
 import pandas as pd
+
 from fastapi import FastAPI
 
 logger = logging.getLogger("uvicorn.error")
@@ -10,6 +13,10 @@ class SimilarItems:
         self._similar_items = None
 
     def load(self, path, **kwargs):
+        """
+        Функция загрузки файла 
+        
+        """
         logger.info(f"Loading data, type: {type}")
         self._similar_items = pd.read_parquet(path, **kwargs)
         self._similar_items = self._similar_items.set_index('item_id_1')
